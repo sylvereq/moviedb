@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Spinner;
 
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageView firstImage;
     private Spinner spin;
+    private GridView gridView;
 
     private static final String IMAGE_SIZE = "w185";
     private static final String BASE_URL = "http://image.tmdb.org/t/p/";
@@ -43,7 +45,11 @@ public class MainActivity extends AppCompatActivity {
 
         String apiKey = Constant.API_KEY;
 
-        firstImage = (ImageView) findViewById(R.id.firstImage);
+        //firstImage = (ImageView) findViewById(R.id.firstImage);
+
+        gridView = (GridView)findViewById(R.id.gridview);
+
+
 
         spin = (Spinner) findViewById(R.id.spinner);
         spin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -61,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
 
         loadMovieDBData();
 
-        Picasso.get().load("http://i.imgur.com/DvpvklR.png").into(firstImage);
 
 }
 
@@ -72,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         if(spin.getSelectedItem().toString().equals(list[0])) {
             requestURL = BASE_URL_LISTS + POPULAR_MOVIE + API_KEY_ADDON;
         } else {
-            requestURL = BASE_URL + TOP_RATED_MOVIE + API_KEY_ADDON;
+            requestURL = BASE_URL_LISTS + TOP_RATED_MOVIE + API_KEY_ADDON;
         }
 
         new MovieDBQuery().execute(requestURL);
@@ -95,6 +100,8 @@ public class MainActivity extends AppCompatActivity {
             String movieDBResults = null;
             try {
                 movieDBResults = getResponseFromHttpUrl(searchUrl);
+
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -102,13 +109,22 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String githubSearchResults) {
+        protected void onPostExecute(String movieDBResults) {
             // COMPLETED (27) As soon as the loading is complete, hide the loading indicator
             //mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if (githubSearchResults != null && !githubSearchResults.equals("")) {
-                // COMPLETED (17) Call showJsonDataView if we have valid, non-null results
-                //showJsonDataView();
-               // mSearchResultsTextView.setText(githubSearchResults);
+
+            if (movieDBResults != null && !movieDBResults.equals("")) {
+                String[] movieList = MovieDBJsonParser.getMovieListFromJson(movieDBResults);
+                ImageAdapter booksAdapter = new ImageAdapter(getApplicationContext(), movieList);
+                gridView.setAdapter(booksAdapter);
+                String imgUrl = BASE_URL + IMAGE_SIZE + movieList[0];
+                try {
+                    Picasso.get().load(imgUrl).into(firstImage);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+
             } else {
                 // COMPLETED (16) Call showErrorMessage if the result is null in onPostExecute
                 //showErrorMessage();

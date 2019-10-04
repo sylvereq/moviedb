@@ -10,7 +10,7 @@ public class MovieDBJsonParser {
     String RESULTS = "results";
 
     public static String[] getMovieListFromJson(String movieDBJsonString) {
-        String[] movieList = null;
+        String[] movieList = new String[100];
         try {
             JSONObject movieDBJson = new JSONObject(movieDBJsonString);
             JSONArray results = movieDBJson.getJSONArray("results");
@@ -20,7 +20,7 @@ public class MovieDBJsonParser {
             }
 
         } catch (JSONException e) {
-
+            e.printStackTrace();
         }
         return movieList;
     }
