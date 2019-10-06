@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 
 import com.squareup.picasso.Picasso;
@@ -20,6 +21,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
@@ -114,10 +116,17 @@ public class MainActivity extends AppCompatActivity {
             //mLoadingIndicator.setVisibility(View.INVISIBLE);
 
             if (movieDBResults != null && !movieDBResults.equals("")) {
-                String[] movieList = MovieDBJsonParser.getMovieListFromJson(movieDBResults);
+                ArrayList movieList = MovieDBJsonParser.getMovieListFromJson(movieDBResults);
                 ImageAdapter booksAdapter = new ImageAdapter(getApplicationContext(), movieList);
                 gridView.setAdapter(booksAdapter);
-                String imgUrl = BASE_URL + IMAGE_SIZE + movieList[0];
+                gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Toast.makeText(getApplicationContext(), "You clicked on position : " + position + " and id : " + id, Toast.LENGTH_LONG).show();
+
+                    }
+                });
+                String imgUrl = BASE_URL + IMAGE_SIZE + movieList.get(0);
                 try {
                     Picasso.get().load(imgUrl).into(firstImage);
                 } catch (Exception e) {

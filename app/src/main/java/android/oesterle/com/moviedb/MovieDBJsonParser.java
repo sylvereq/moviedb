@@ -4,19 +4,27 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 
 public class MovieDBJsonParser {
 
-    String RESULTS = "results";
+    private static String RESULTS = "results";
+    private static String TITLE = "original_title";
+    private static String VOTE_AVERAGE = "vote_average";
+    private static String PLOT = "overview";
+    private static String PATH = "poster_path";
 
-    public static String[] getMovieListFromJson(String movieDBJsonString) {
-        String[] movieList = new String[100];
+    public static ArrayList<Movie> getMovieListFromJson(String movieDBJsonString) {
+        //String[] movieList = new String[100];
+        ArrayList movieList = new ArrayList<Movie>();
         try {
             JSONObject movieDBJson = new JSONObject(movieDBJsonString);
             JSONArray results = movieDBJson.getJSONArray("results");
             for (int i = 0; i < results.length(); i++) {
                 JSONObject movie = results.getJSONObject(i);
-                movieList[i] = movie.getString("poster_path");
+                Movie mov = new Movie(movie.getString(PATH),movie.getString(TITLE), movie.getString(VOTE_AVERAGE), movie.getString(PLOT));
+                movieList.add(mov);
             }
 
         } catch (JSONException e) {
