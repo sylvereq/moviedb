@@ -1,16 +1,11 @@
 package android.oesterle.com.moviedb;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -34,7 +29,7 @@ public class ImageAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        return null;
+        return movieList.get(position);
     }
 
     @Override

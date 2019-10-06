@@ -3,6 +3,9 @@ package android.oesterle.com.moviedb;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,8 +16,6 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-
-import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,13 +31,13 @@ public class MainActivity extends AppCompatActivity {
     private Spinner spin;
     private GridView gridView;
 
-    private static final String IMAGE_SIZE = "w185";
-    private static final String BASE_URL = "http://image.tmdb.org/t/p/";
-    private static final String POPULAR_MOVIE = "/movie/popular";
-    private static final String TOP_RATED_MOVIE = "/movie/top_rated";
+    public static final String IMAGE_SIZE = "w185";
+    public static final String BASE_URL = "http://image.tmdb.org/t/p/";
+    public static final String POPULAR_MOVIE = "/movie/popular";
+    public static final String TOP_RATED_MOVIE = "/movie/top_rated";
 
-    private static final String BASE_URL_LISTS = "https://api.themoviedb.org/3";
-    private static final String API_KEY_ADDON = "?api_key="+Constant.API_KEY+"&page=1";
+    public static final String BASE_URL_LISTS = "https://api.themoviedb.org/3";
+    public static final String API_KEY_ADDON = "?api_key="+Constant.API_KEY+"&page=1";
 
 
 
@@ -82,7 +83,12 @@ public class MainActivity extends AppCompatActivity {
             requestURL = BASE_URL_LISTS + TOP_RATED_MOVIE + API_KEY_ADDON;
         }
 
-        new MovieDBQuery().execute(requestURL);
+        if(isNetworkAvailable()) {
+            new MovieDBQuery().execute(requestURL);
+        } else {
+            Toast.makeText(getApplicationContext(), "No Internet available", Toast.LENGTH_LONG).show();
+        }
+
     }
 
 
@@ -91,8 +97,8 @@ public class MainActivity extends AppCompatActivity {
         // COMPLETED (26) Override onPreExecute to set the loading indicator to visible
         @Override
         protected void onPreExecute() {
+
             super.onPreExecute();
-            //mLoadingIndicator.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -101,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
             URL searchUrl = buildUrl(params[0]);
             String movieDBResults = null;
             try {
+
                 movieDBResults = getResponseFromHttpUrl(searchUrl);
 
 
@@ -122,21 +129,25 @@ public class MainActivity extends AppCompatActivity {
                 gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Toast.makeText(getApplicationContext(), "You clicked on position : " + position + " and id : " + id, Toast.LENGTH_LONG).show();
+
+                        Context context = MainActivity.this;
+
+                        Class destnationActivity = ChildActivity.class;
+
+                        Intent startChildActivityIntent = new Intent(context, destnationActivity);
+
+                        Movie movie = (Movie) parent.getItemAtPosition(position);
+                        startChildActivityIntent.putExtra(Movie.TITLE,movie.getTitle() );
+                        startChildActivityIntent.putExtra(Movie.PLOT,movie.getPlot() );
+                        startChildActivityIntent.putExtra(Movie.IMG_URL, movie.getImgUrl());
+                        startChildActivityIntent.putExtra(Movie.VOTE_AVERAGE,movie.getVotaAverage() );
+                        startChildActivityIntent.putExtra(Movie.RELEASE_DATE,movie.getReleaseDate() );
+
+                        startActivity(startChildActivityIntent);
 
                     }
                 });
-                String imgUrl = BASE_URL + IMAGE_SIZE + movieList.get(0);
-                try {
-                    Picasso.get().load(imgUrl).into(firstImage);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
 
-
-            } else {
-                // COMPLETED (16) Call showErrorMessage if the result is null in onPostExecute
-                //showErrorMessage();
             }
         }
     }
@@ -158,6 +169,12 @@ public class MainActivity extends AppCompatActivity {
         } finally {
             urlConnection.disconnect();
         }
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     public static URL buildUrl(String requestUrl) {

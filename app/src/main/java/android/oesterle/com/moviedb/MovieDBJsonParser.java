@@ -14,6 +14,7 @@ public class MovieDBJsonParser {
     private static String VOTE_AVERAGE = "vote_average";
     private static String PLOT = "overview";
     private static String PATH = "poster_path";
+    private static String RELEASEDATE = "release_date";
 
     public static ArrayList<Movie> getMovieListFromJson(String movieDBJsonString) {
         //String[] movieList = new String[100];
@@ -23,7 +24,7 @@ public class MovieDBJsonParser {
             JSONArray results = movieDBJson.getJSONArray("results");
             for (int i = 0; i < results.length(); i++) {
                 JSONObject movie = results.getJSONObject(i);
-                Movie mov = new Movie(movie.getString(PATH),movie.getString(TITLE), movie.getString(VOTE_AVERAGE), movie.getString(PLOT));
+                Movie mov = new Movie(movie.getString(PATH),movie.getString(TITLE), movie.getString(VOTE_AVERAGE), movie.getString(PLOT), movie.getString(RELEASEDATE));
                 movieList.add(mov);
             }
 
